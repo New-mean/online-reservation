@@ -28,39 +28,13 @@ export class AuthService {
     phoneNumber: string,
   ) {
     try {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-      if (!email) {
-        throw new BadRequestException('이메일 입력이 필요합니다.');
-      }
-
-      if (!emailRegex.test(email)) {
-        throw new BadRequestException('올바르지 않은 이메일 형식입니다.');
-      }
-
       const existingUser = await this.findByEmail(email);
       if (existingUser) {
         throw new ConflictException('이미 등록된 이메일입니다.');
       }
 
-      if (!password) {
-        throw new BadRequestException('비밀번호 입력이 필요합니다.');
-      }
-
       if (password.length < 6) {
         throw new BadRequestException('비밀번호는 최소 6자 이상이어야 합니다.');
-      }
-
-      if (!name) {
-        throw new BadRequestException('이름을 입력해주세요.');
-      }
-
-      if (!nickName) {
-        throw new BadRequestException('이름을 입력해주세요.');
-      }
-
-      if (!phoneNumber) {
-        throw new BadRequestException('전화번호를 입력해주세요.');
       }
 
       const hashedPassword = await hash(password, 10);

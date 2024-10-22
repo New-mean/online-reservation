@@ -1,4 +1,11 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MIN_LENGTH,
+  MinLength,
+} from 'class-validator';
+import { min } from 'lodash';
 
 export class SignUpDto {
   @IsEmail()
@@ -6,6 +13,7 @@ export class SignUpDto {
   email: string;
 
   @IsString()
+  @MinLength(6, { message: '6글자 이상 작성해주세요.' })
   @IsNotEmpty({ message: '비밀번호를 입력해주세요.' })
   password: string;
 
