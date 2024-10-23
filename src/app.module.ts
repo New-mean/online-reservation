@@ -11,6 +11,7 @@ import { UsersModule } from './users/user.module';
 import { Point } from './point/entities/point.entity';
 import { ShowModule } from './show/show.module';
 import { ReservationModule } from './reservation/reservation.module';
+import { ShowModule } from './show/show.module';
 
 const typeOrmModuleOptions = {
   useFactory: async (
