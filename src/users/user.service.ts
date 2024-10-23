@@ -1,23 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 
-export type User = any;
+import _ from 'lodash';
+import { User } from './entities/user.entity';
+import { Point } from 'src/point/entities/point.entity';
+import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
-export class UsersService {
-  private readonly users = [
-    {
-      userId: 1,
-      username: 'john',
-      password: 'changeme',
-    },
-    {
-      userId: 2,
-      username: 'maria',
-      password: 'guess',
-    },
-  ];
+export class UserService {
+  constructor(
+    @InjectRepository(Point)
+    private readonly pointRepository: Repository<Point>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
+  ) {}
 
-  async findOne(username: string): Promise<User | undefined> {
-    return this.users.find((user) => user.username === username);
+  async findOneById(user: User) {
+    const users = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.points', 'points') // User와 Point 관계를 left join으로 가져옴
+      .select(['user.nickName', 'points.pointid', 'points.point']) // 필요한 필드만 선택
+      .where('user.userid = :userid', { userid: user.userid })
+      .getOne();
+
+    if (!users) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    return users;
   }
 }

@@ -17,7 +17,8 @@ export class AuthController {
       signUpDto.password,
       signUpDto.nickName,
       signUpDto.name,
-      signUpDto.phoneNumber,
+      signUpDto.phone,
+      signUpDto.is_Admin,
     );
   }
 
@@ -25,6 +26,9 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto) {
     return await this.authService.login(loginDto.email, loginDto.password);
   }
-
   @UseGuards(AuthGuard('jwt'))
+  @Get('email')
+  getEmail(@UserInfo() user: User) {
+    return { email: user.email };
+  }
 }

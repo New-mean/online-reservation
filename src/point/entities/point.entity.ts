@@ -1,4 +1,3 @@
-import { number } from 'joi';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -7,23 +6,28 @@ import {
   CreateDateColumn,
   ManyToOne,
   Relation,
+  JoinColumn,
 } from 'typeorm';
 
-@Entity({ name: 'users' })
+@Entity({ name: 'points' })
 export class Point {
-  @PrimaryGeneratedColumn('uuid', { name: 'id' })
+  @PrimaryGeneratedColumn()
   pointid: number;
 
-  @Column({ type: 'number', default: 1000000, name: 'point' })
+  @Column({ type: 'int', default: 1000000, name: 'point' })
   point: number;
+
+  @Column({ type: 'varchar', name: 'reason' })
+  reason: string;
+
+  @Column({ type: 'int', default: 0, name: 'point_receipt' })
+  point_receipt: number;
 
   @CreateDateColumn({ name: 'createAt', comment: '생성일시' })
   createdAt: Date;
-  user: any;
 
-  @ManyToOne((type) => User, (user) => user.point, {
-    nullable: false,
+  @ManyToOne(() => User, (user) => user.points, {
     onDelete: 'CASCADE',
   })
-  users: Relation<User>;
+  user: User;
 }

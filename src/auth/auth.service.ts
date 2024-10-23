@@ -11,10 +11,13 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
+import { Point } from 'src/point/entities/point.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(Point)
+    private readonly pointRepository: Repository<Point>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private readonly jwtService: JwtService,
@@ -25,16 +28,13 @@ export class AuthService {
     password: string,
     nickName: string,
     name: string,
-    phoneNumber: string,
+    phone: string,
+    is_Admin: boolean,
   ) {
     try {
       const existingUser = await this.findByEmail(email);
       if (existingUser) {
         throw new ConflictException('이미 등록된 이메일입니다.');
-      }
-
-      if (password.length < 6) {
-        throw new BadRequestException('비밀번호는 최소 6자 이상이어야 합니다.');
       }
 
       const hashedPassword = await hash(password, 10);
@@ -43,17 +43,18 @@ export class AuthService {
         password: hashedPassword,
         name,
         nickName,
-        phoneNumber,
+        phone,
+        is_Admin,
       });
+
+      await this.pointRepository.save({
+        user: users,
+        reason: '신규 가입 고객 포인트 증정',
+      });
+
       return await this.userRepository.findOne({
         where: { userid: users.userid },
-        select: {
-          email: true,
-          password: true,
-          nickName: true,
-          name: true,
-          phoneNumber: true,
-        },
+        select: ['email', 'nickName', 'name', 'phone'],
       });
     } catch (error) {
       throw new InternalServerErrorException('에러가 발생했습니다.');
@@ -67,8 +68,8 @@ export class AuthService {
       }
 
       const user = await this.userRepository.findOne({
-        select: ['userid', 'email', 'password'],
         where: { email },
+        select: ['userid', 'email', 'password'],
       });
 
       if (_.isNil(user)) {

@@ -1,11 +1,10 @@
 import {
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsString,
-  MIN_LENGTH,
   MinLength,
 } from 'class-validator';
-import { min } from 'lodash';
 
 export class SignUpDto {
   @IsEmail()
@@ -27,5 +26,9 @@ export class SignUpDto {
 
   @IsString()
   @IsNotEmpty({ message: '전화번호를 입력해주세요' })
-  phoneNumber: string;
+  phone: string;
+
+  @IsBoolean()
+  @IsNotEmpty({ message: '관리자 인지 손님인지 구분해 주세요.' })
+  is_Admin: boolean;
 }
