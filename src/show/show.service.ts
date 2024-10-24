@@ -1,26 +1,43 @@
 import { Injectable } from '@nestjs/common';
 import { CreateShowDto } from './dto/create-show.dto';
 import { UpdateShowDto } from './dto/update-show.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Show } from './entities/show.entity';
+import { Repository } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { Role } from './types/categoryRole.type';
 
 @Injectable()
 export class ShowService {
-  create(createShowDto: CreateShowDto) {
-    return 'This action adds a new show';
-  }
+  constructor(
+    @InjectRepository(Show) private showRepository: Repository<Show>,
+  ) {}
 
-  findAll() {
-    return `This action returns all show`;
-  }
+  async createShow(
+    userId: number,
+    showTitle: string,
+    showExplain: string,
+    showCast: string,
+    showPrice: number,
+    showImage: string,
+    showRunTime: string,
+    showCategory: Role,
+    showLocation: string,
+  ) {
+    await this.showRepository.save({
+      userId: userId,
+      showTitle,
+      showExplain,
+      showCast,
+      showPrice,
+      showImage,
+      showRunTime,
+      showCategory,
+      showLocation,
+    });
 
-  findOne(id: number) {
-    return `This action returns a #${id} show`;
-  }
-
-  update(id: number, updateShowDto: UpdateShowDto) {
-    return `This action updates a #${id} show`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} show`;
+    return {
+      message: '공연등록 완료',
+    };
   }
 }

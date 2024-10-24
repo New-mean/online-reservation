@@ -1,3 +1,4 @@
+import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   Entity,
@@ -5,14 +6,13 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  DeleteDateColumn,
-  OneToMany,
+  ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { Role } from '../types/categoryRole.type';
 
-@Index('email', ['email'], { unique: true })
 @Entity({ name: 'shows' })
-export class User {
+export class Show {
   @PrimaryGeneratedColumn()
   showId: number;
 
@@ -25,24 +25,32 @@ export class User {
   @Column({ type: 'varchar', nullable: false, name: 'showCast' })
   showCast: string;
 
-  @Column({ type: 'varchar', nullable: false, name: 'showPrice' })
-  showPrice: string;
+  @Column({ type: 'int', nullable: false, name: 'showPrice' })
+  showPrice: number;
 
   @Column({ type: 'varchar', nullable: false, name: 'showImage' })
   showImage: string;
 
-  @Column({ type: 'varchar', nullable: false, name: 'showRuntime' })
-  showRuntime: string;
+  @Column({ type: 'varchar', nullable: false, name: 'showRunTime' })
+  showRunTime: string;
 
-  @Column({ type: 'varchar', nullable: false, name: 'showCategory' })
-  showCategory: string;
+  @Column({
+    type: 'enum',
+    enum: Role,
+    default: Role.Musical,
+    name: 'showCategory',
+  })
+  showCategory: Role;
 
-  @Column({ type: 'boolean', nullable: false, name: 'showRuntime' })
-  is_Bookable: boolean;
+  @Column({ type: 'varchar', nullable: false, name: 'showLocation' })
+  showLocation: string;
 
   @CreateDateColumn({ name: 'createdAt', comment: '생성일시' })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updatedAt', comment: '수정일시' })
   updateAt: Date;
+
+  @ManyToOne(() => User, (user) => user.shows)
+  user: User;
 }

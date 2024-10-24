@@ -1,4 +1,12 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  IsUrl,
+} from 'class-validator';
+import { Role } from '../types/categoryRole.type';
 
 export class CreateShowDto {
   @IsString()
@@ -16,4 +24,21 @@ export class CreateShowDto {
   @IsNumber()
   @IsNotEmpty({ message: '가격을 입력해주세요.' })
   showPrice: number;
+
+  @IsString()
+  @IsNotEmpty({ message: '이미지 URL을 입력해주세요' })
+  @IsUrl({}, { message: '올바른 URL 형식이 아닙니다.' })
+  showImage: string;
+
+  @IsString()
+  @IsNotEmpty({ message: '공연 진행 시간을 입력해주세요.' })
+  showRunTime: string;
+
+  @IsEnum(Role, { message: 'Musical,Opera,Concert 중 하나만 입력해주세요.' })
+  @IsNotEmpty({ message: '카테고리를 입력해주세요.' })
+  showCategory: Role;
+
+  @IsString()
+  @IsNotEmpty({ message: '장소를 입력해주세요.' })
+  showLocation: string;
 }

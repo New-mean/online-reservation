@@ -18,7 +18,7 @@ export class AuthController {
       signUpDto.nickName,
       signUpDto.name,
       signUpDto.phone,
-      signUpDto.is_Admin,
+      signUpDto.role,
     );
   }
 

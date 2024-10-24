@@ -19,9 +19,9 @@ export class UserService {
   async findOneById(user: User) {
     const users = await this.userRepository
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.points', 'points') // User와 Point 관계를 left join으로 가져옴
-      .select(['user.nickName', 'points.pointid', 'points.point']) // 필요한 필드만 선택
-      .where('user.userid = :userid', { userid: user.userid })
+      .leftJoinAndSelect('user.points', 'points')
+      .select(['user.nickName', 'points.pointid', 'points.point'])
+      .where('user.userId = :userid', { userid: user.userId })
       .getOne();
 
     if (!users) {
