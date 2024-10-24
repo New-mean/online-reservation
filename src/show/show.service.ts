@@ -56,4 +56,6 @@ export class ShowService {
       message: '공연등록 완료',
     };
   }
+
+  async findShow(search: string) {}
 }

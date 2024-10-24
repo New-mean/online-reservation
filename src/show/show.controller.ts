@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ShowService } from './show.service';
 import { CreateShowDto } from './dto/create-show.dto';
@@ -37,5 +38,10 @@ export class ShowController {
       createShowDto.showLocation,
       createShowDto.seatInfo,
     );
+  }
+
+  @Get()
+  async findShow(@Query('search') search?: string) {
+    return await this.showService.findShow(search);
   }
 }
