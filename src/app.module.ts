@@ -12,7 +12,7 @@ import { Point } from './point/entities/point.entity';
 import { ShowModule } from './show/show.module';
 import { Show } from './show/entities/show.entity';
 import { Seat } from './seat/entities/seat.entity';
-import { ShowScheduleModule } from './show-schedule/show-schedule.module';
+// import { ShowScheduleModule } from './show-schedule/show-schedule.module';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -50,7 +50,7 @@ const typeOrmModuleOptions = {
     AuthModule,
     ShowModule,
     UsersModule,
-    ShowScheduleModule,
+    // ShowScheduleModule,
   ],
   controllers: [],
   providers: [],
