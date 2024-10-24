@@ -1,12 +1,16 @@
 import {
+  IsArray,
   IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsString,
   IsUrl,
+  ValidateNested,
 } from 'class-validator';
 import { Role } from '../types/categoryRole.type';
+import { Type } from 'class-transformer';
+import { SeatInfoDto } from 'src/seat/dto/create-seat.dto';
 
 export class CreateShowDto {
   @IsString()
@@ -41,4 +45,9 @@ export class CreateShowDto {
   @IsString()
   @IsNotEmpty({ message: '장소를 입력해주세요.' })
   showLocation: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SeatInfoDto)
+  seatInfo: SeatInfoDto[];
 }

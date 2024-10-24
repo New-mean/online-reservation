@@ -6,11 +6,13 @@ import { Show } from './entities/show.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Role } from './types/categoryRole.type';
+import { Seat } from 'src/seat/entities/seat.entity';
 
 @Injectable()
 export class ShowService {
   constructor(
     @InjectRepository(Show) private showRepository: Repository<Show>,
+    @InjectRepository(Seat) private seatRepository: Repository<Seat>,
   ) {}
 
   async createShow(
@@ -23,8 +25,9 @@ export class ShowService {
     showRunTime: string,
     showCategory: Role,
     showLocation: string,
+    seatInfo: any[],
   ) {
-    await this.showRepository.save({
+    const show = await this.showRepository.save({
       userId: userId,
       showTitle,
       showExplain,
@@ -35,6 +38,19 @@ export class ShowService {
       showCategory,
       showLocation,
     });
+
+    const seats = seatInfo.map((seat) => {
+      const { seatNumber, seatPrice, seatGrade } = seat;
+      const seatEntity = this.seatRepository.create({
+        seatNumber,
+        seatPrice,
+        seatGrade,
+      });
+      seatEntity.show = show;
+      return seatEntity;
+    });
+
+    await this.seatRepository.save(seats);
 
     return {
       message: '공연등록 완료',
