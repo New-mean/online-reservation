@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateShowDto } from './dto/create-show.dto';
 import { UpdateShowDto } from './dto/update-show.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Role } from './types/categoryRole.type';
 import { Seat } from 'src/seat/entities/seat.entity';
+import _ from 'lodash';
 
 @Injectable()
 export class ShowService {
@@ -15,6 +16,7 @@ export class ShowService {
     @InjectRepository(Seat) private seatRepository: Repository<Seat>,
   ) {}
 
+  // 공연 등록
   async createShow(
     userId: number,
     showTitle: string,
@@ -57,5 +59,43 @@ export class ShowService {
     };
   }
 
-  async findShow(search: string) {}
+  // 공연 목록 조회
+  async findShow(search: string) {
+    const show = this.showRepository
+      .createQueryBuilder('shows')
+      .select([
+        'shows.showId',
+        'shows.showTitle',
+        'shows.showCast',
+        'shows.showLocation',
+      ]);
+
+    if (search) {
+      show.where('shows.showTitle LIKE :search', { search: `%${search}%` });
+    }
+
+    const shows = await show.getRawMany();
+
+    return {
+      message: '공연 조회 되었습니다.',
+      data: shows,
+    };
+  }
+
+  async detailShow(showId: number) {
+    const show = await this.detailShowId(showId);
+
+    return {
+      message: '공연 상세 조회 되었습니다.',
+      data: show,
+    };
+  }
+
+  private async detailShowId(showId: number) {
+    const show = await this.showRepository.findOneBy({ showId });
+    if (_.isNil(show)) {
+      throw new NotFoundException('존재하지 않는 공연입니다.');
+    }
+    return show;
+  }
 }

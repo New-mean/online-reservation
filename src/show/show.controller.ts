@@ -44,4 +44,9 @@ export class ShowController {
   async findShow(@Query('search') search?: string) {
     return await this.showService.findShow(search);
   }
+
+  @Get(':showId')
+  async detailShow(@Param('showId') showId: number) {
+    return await this.showService.detailShow(showId);
+  }
 }
