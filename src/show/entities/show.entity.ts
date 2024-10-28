@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import { Role } from '../types/categoryRole.type';
 import { Seat } from 'src/seat/entities/seat.entity';
-// import { ShowSchedule } from 'src/show-schedule/entities/show-schedule.entity';
+import { ShowSchedule } from '../../show-schedule/entities/showSchedule.entity';
 
 @Entity({ name: 'shows' })
 export class Show {
@@ -63,6 +63,6 @@ export class Show {
   @OneToMany(() => Seat, (seat) => seat.show)
   seat: Seat[];
 
-  // @OneToMany(() => ShowSchedule, (showschedule) => showschedule.show)
-  // showschdule: ShowSchedule[];
+  @OneToMany(() => ShowSchedule, (showschedule) => showschedule.show)
+  showschdule: ShowSchedule[];
 }

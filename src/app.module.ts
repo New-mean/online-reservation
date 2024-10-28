@@ -12,8 +12,8 @@ import { Point } from './point/entities/point.entity';
 import { ShowModule } from './show/show.module';
 import { Show } from './show/entities/show.entity';
 import { Seat } from './seat/entities/seat.entity';
-// import { ShowScheduleModule } from './show-schedule/show-schedule.module';
 import { ShowScheduleModule } from './show-schedule/show-schedule.module';
+import { ShowSchedule } from './show-schedule/entities/showSchedule.entity';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -26,7 +26,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [User, Point, Show, Seat],
+    entities: [User, Point, Show, Seat, ShowSchedule],
     synchronize: configService.get('DB_SYNC'),
     logging: true,
   }),
@@ -52,7 +52,6 @@ const typeOrmModuleOptions = {
     ShowModule,
     UsersModule,
     ShowScheduleModule,
-    // ShowScheduleModule,
   ],
   controllers: [],
   providers: [],

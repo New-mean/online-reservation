@@ -1,13 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateShowDto } from './dto/create-show.dto';
-import { UpdateShowDto } from './dto/update-show.dto';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Show } from './entities/show.entity';
 import { Repository } from 'typeorm';
-import { User } from 'src/users/entities/user.entity';
 import { Role } from './types/categoryRole.type';
 import { Seat } from 'src/seat/entities/seat.entity';
 import _ from 'lodash';
+import { ShowSchedule } from 'src/show-schedule/entities/showSchedule.entity';
+import { constrainedMemory } from 'process';
+import { date } from 'joi';
+import { SeatInfoDto } from 'src/seat/dto/create-seat.dto';
 
 @Injectable()
 export class ShowService {
@@ -41,6 +46,7 @@ export class ShowService {
       showLocation,
     });
 
+    // console.log(seatInfo);
     const seats = seatInfo.map((seat) => {
       const { seatNumber, seatPrice, seatGrade } = seat;
       const seatEntity = this.seatRepository.create({
@@ -61,24 +67,23 @@ export class ShowService {
 
   // 공연 목록 조회
   async findShow(search: string) {
-    const show = this.showRepository
-      .createQueryBuilder('shows')
-      .select([
-        'shows.showId',
-        'shows.showTitle',
-        'shows.showCast',
-        'shows.showLocation',
-      ]);
+    console.log(search);
+    const show = await this.showRepository.find({
+      where: { showTitle: search },
+      relations: { showschdule: true },
+      // select: {
+      //   showTitle: true,
+      //   showCast: true,
+      // },
+    });
 
-    if (search) {
-      show.where('shows.showTitle LIKE :search', { search: `%${search}%` });
+    if (show.length === 0) {
+      throw new BadRequestException('공연이 없습니다.');
     }
-
-    const shows = await show.getRawMany();
 
     return {
       message: '공연 조회 되었습니다.',
-      data: shows,
+      show,
     };
   }
 
@@ -87,7 +92,7 @@ export class ShowService {
 
     return {
       message: '공연 상세 조회 되었습니다.',
-      data: show,
+      show,
     };
   }
 
