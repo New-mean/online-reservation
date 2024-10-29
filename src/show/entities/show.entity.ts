@@ -48,8 +48,8 @@ export class Show {
   @Column({ type: 'varchar', nullable: false, name: 'showLocation' })
   showLocation: string;
 
-  // @Column({ type: 'json', nullable: true })
-  // seatInfo: { seatNumber: number; seatGrade: string; seatPrice: number };
+  @Column({ type: 'json', nullable: true })
+  seatInfo: { seatNumber: number; seatGrade: string; seatPrice: number };
 
   @CreateDateColumn({ name: 'createdAt', comment: '생성일시' })
   createdAt: Date;

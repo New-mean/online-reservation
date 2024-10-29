@@ -69,9 +69,9 @@ export class ShowService {
   }
 
   // 공연 목록 조회
-  async findShow(search: string) {
+  async findShow(search: Role) {
     const show = await this.showRepository.find({
-      where: { showTitle: search },
+      where: { showCategory: search },
       relations: { showschdule: true },
       select: {
         showTitle: true,
@@ -128,6 +128,6 @@ export class ShowService {
   }
 
   async findByshowTitle(showTitle: string) {
-    return await this.showRepository.findOneBy({ showTitle });
+    return await this.showRepository.findBy({ showTitle });
   }
 }

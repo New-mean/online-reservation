@@ -13,7 +13,8 @@ import { ShowService } from './show.service';
 import { CreateShowDto } from './dto/create-show.dto';
 import { UpdateShowDto } from './dto/update-show.dto';
 import { Roles } from 'src/auth/roles.decorator';
-import { Role } from 'src/users/types/userRole.type';
+import { Role as userRole } from 'src/users/types/userRole.type';
+import { Role as categoryRole } from '../show/types/categoryRole.type';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { UserInfo } from 'src/utils/userInfo.decorator';
 import { User } from 'src/users/entities/user.entity';
@@ -23,7 +24,7 @@ import { User } from 'src/users/entities/user.entity';
 export class ShowController {
   constructor(private readonly showService: ShowService) {}
 
-  @Roles(Role.Admin)
+  @Roles(userRole.Admin)
   @Post('postshow')
   async create(@UserInfo() user: User, @Body() createShowDto: CreateShowDto) {
     return await this.showService.createShow(
@@ -41,7 +42,7 @@ export class ShowController {
   }
 
   @Get()
-  async findShow(@Query('search') search?: string) {
+  async findShow(@Query('search') search: categoryRole) {
     return await this.showService.findShow(search);
   }
 
