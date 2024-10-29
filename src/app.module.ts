@@ -14,6 +14,7 @@ import { Show } from './show/entities/show.entity';
 import { Seat } from './seat/entities/seat.entity';
 import { ShowScheduleModule } from './show-schedule/show-schedule.module';
 import { ShowSchedule } from './show-schedule/entities/showSchedule.entity';
+import { ReservationModule } from './reservation/reservation.module';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -52,6 +53,7 @@ const typeOrmModuleOptions = {
     ShowModule,
     UsersModule,
     ShowScheduleModule,
+    ReservationModule,
   ],
   controllers: [],
   providers: [],
