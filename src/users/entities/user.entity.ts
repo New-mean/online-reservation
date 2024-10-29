@@ -12,13 +12,14 @@ import {
 
 import { Role } from '../types/userRole.type';
 import { Point } from 'src/point/entities/point.entity';
+import { Show } from '../../show/entities/show.entity';
 // import { Reservation } from './Reservation.entity';
 
 @Index('email', ['email'], { unique: true })
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn()
-  userid: number;
+  userId: number;
 
   @Column({ type: 'varchar', unique: true, nullable: false, name: 'email' })
   email: string;
@@ -35,11 +36,8 @@ export class User {
   @Column({ type: 'varchar', unique: true, nullable: false, name: 'phone' })
   phone: string;
 
-  @Column({ type: 'enum', enum: Role, default: Role.User, name: 'Role' })
+  @Column({ type: 'enum', enum: Role, default: Role.User })
   role: Role;
-
-  @Column({ type: 'boolean', unique: true, nullable: false, name: 'is_Admin' })
-  is_Admin: boolean;
 
   @CreateDateColumn({ name: 'createdAt', comment: '생성일시' })
   createdAt: Date;
@@ -52,4 +50,7 @@ export class User {
 
   @OneToMany(() => Point, (point) => point.user)
   points: Point[];
+
+  @OneToMany(() => Show, (show) => show.user)
+  shows: Show[];
 }

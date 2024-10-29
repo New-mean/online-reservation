@@ -1,10 +1,13 @@
 import {
   IsBoolean,
   IsEmail,
+  IsEnum,
   IsNotEmpty,
+  IsPhoneNumber,
   IsString,
   MinLength,
 } from 'class-validator';
+import { Role } from 'src/users/types/userRole.type';
 
 export class SignUpDto {
   @IsEmail()
@@ -25,10 +28,11 @@ export class SignUpDto {
   name: string;
 
   @IsString()
+  @IsPhoneNumber('KR', { message: '전화번호를 정확하게 입력해주세요.' })
   @IsNotEmpty({ message: '전화번호를 입력해주세요' })
   phone: string;
 
-  @IsBoolean()
-  @IsNotEmpty({ message: '관리자 인지 손님인지 구분해 주세요.' })
-  is_Admin: boolean;
+  @IsEnum(Role, { message: 'User, Admin중 하나를 선택하세요.' })
+  @IsNotEmpty({ message: 'Role을 입력해주세요.' })
+  role: Role;
 }
