@@ -17,6 +17,9 @@ export class Reservation {
   @Column({ type: 'int', nullable: false })
   totalSeat: number;
 
+  @Column({ type: 'boolean', nullable: false })
+  cancle: boolean;
+
   @Column({ type: 'timestamp', nullable: false })
   createdAt: Date;
 

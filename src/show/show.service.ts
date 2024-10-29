@@ -122,6 +122,40 @@ export class ShowService {
     };
   }
 
+  async findreservation(showId: number) {
+    const availableSeats = await this.seatRepository.find({
+      where: { show: { showId } },
+      relations: {
+        show: { showschdule: true },
+      },
+      select: {
+        seatId: true,
+        seatGrade: true,
+        seatNumber: true,
+        seatPrice: true,
+        show: {
+          showId: true,
+          showschdule: {
+            showScheduleId: true,
+            showDate: true,
+            showTime: true,
+          },
+        },
+      },
+      order: {
+        seatNumber: 'DESC',
+      },
+    });
+    if (availableSeats.length === 0) {
+      throw new BadRequestException('예매 가능한 좌석이 없습니다.');
+    }
+
+    return {
+      message: '예매 가능한 좌석 조회 완료',
+      data: availableSeats,
+    };
+  }
+
   private async detailShowId(showId: number) {
     const show = await this.showRepository.findOneBy({ showId });
     if (_.isNil(show)) {
