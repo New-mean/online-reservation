@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,9 +11,6 @@ import { Role } from './types/categoryRole.type';
 import { Seat } from 'src/seat/entities/seat.entity';
 import _ from 'lodash';
 import { ShowSchedule } from 'src/show-schedule/entities/showSchedule.entity';
-import { constrainedMemory } from 'process';
-import { date } from 'joi';
-import { SeatInfoDto } from 'src/seat/dto/create-seat.dto';
 
 @Injectable()
 export class ShowService {
@@ -34,6 +32,10 @@ export class ShowService {
     showLocation: string,
     seatInfo: any[],
   ) {
+    const existingShow = await this.findByshowTitle(showTitle);
+    if (existingShow) {
+      throw new ConflictException('이미 등록된 showTitle입니다.');
+    }
     const show = await this.showRepository.save({
       userId: userId,
       showTitle,
@@ -46,7 +48,7 @@ export class ShowService {
       showLocation,
     });
 
-    // console.log(seatInfo);
+    console.log(seatInfo);
     const seats = seatInfo.map((seat) => {
       const { seatNumber, seatPrice, seatGrade } = seat;
       const seatEntity = this.seatRepository.create({
@@ -62,19 +64,20 @@ export class ShowService {
 
     return {
       message: '공연등록 완료',
+      show,
     };
   }
 
   // 공연 목록 조회
   async findShow(search: string) {
-    console.log(search);
     const show = await this.showRepository.find({
       where: { showTitle: search },
       relations: { showschdule: true },
-      // select: {
-      //   showTitle: true,
-      //   showCast: true,
-      // },
+      select: {
+        showTitle: true,
+        showCast: true,
+        showLocation: true,
+      },
     });
 
     if (show.length === 0) {
@@ -87,12 +90,32 @@ export class ShowService {
     };
   }
 
+  // 공연 상세 조회
   async detailShow(showId: number) {
     const show = await this.detailShowId(showId);
-
+    const data = await this.showRepository.find({
+      where: { showId: showId },
+      relations: { showschdule: true, seat: true },
+      select: {
+        showTitle: true,
+        showExplain: true,
+        showCast: true,
+        showPrice: true,
+        showImage: true,
+        showRunTime: true,
+        showCategory: true,
+        showLocation: true,
+        seat: {
+          seatId: true,
+          seatNumber: true,
+          seatPrice: true,
+          seatGrade: true,
+        },
+      },
+    });
     return {
       message: '공연 상세 조회 되었습니다.',
-      show,
+      data,
     };
   }
 
@@ -102,5 +125,9 @@ export class ShowService {
       throw new NotFoundException('존재하지 않는 공연입니다.');
     }
     return show;
+  }
+
+  async findByshowTitle(showTitle: string) {
+    return await this.showRepository.findOneBy({ showTitle });
   }
 }

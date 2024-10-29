@@ -31,7 +31,6 @@ export class ShowScheduleService {
 
     return {
       messgae: '스케쥴 등록 완료',
-      schedule,
     };
   }
 }
