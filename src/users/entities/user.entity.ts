@@ -13,7 +13,7 @@ import {
 import { Role } from '../types/userRole.type';
 import { Point } from 'src/point/entities/point.entity';
 import { Show } from '../../show/entities/show.entity';
-// import { Reservation } from './Reservation.entity';
+import { Reservation } from 'src/reservation/entities/reservation.entity';
 
 @Index('email', ['email'], { unique: true })
 @Entity({ name: 'users' })
@@ -53,4 +53,7 @@ export class User {
 
   @OneToMany(() => Show, (show) => show.user)
   shows: Show[];
+
+  @OneToMany(() => Reservation, (reservation) => reservation.user)
+  reservation: Reservation[];
 }

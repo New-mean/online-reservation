@@ -13,6 +13,7 @@ import {
 import { Role } from '../types/categoryRole.type';
 import { Seat } from 'src/seat/entities/seat.entity';
 import { ShowSchedule } from '../../show-schedule/entities/showSchedule.entity';
+import { Reservation } from 'src/reservation/entities/reservation.entity';
 
 @Entity({ name: 'shows' })
 export class Show {
@@ -65,4 +66,7 @@ export class Show {
 
   @OneToMany(() => ShowSchedule, (showschedule) => showschedule.show)
   showschdule: ShowSchedule[];
+
+  @OneToMany(() => Reservation, (reservation) => reservation.show)
+  reservation: Reservation[];
 }

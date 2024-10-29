@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Show } from '../../show/entities/show.entity';
+import { Reservation } from 'src/reservation/entities/reservation.entity';
 
 @Entity({
   name: 'seats',
@@ -32,4 +33,7 @@ export class Seat {
 
   @ManyToOne(() => Show, (show) => show.seat)
   show: Show;
+
+  @OneToMany(() => Reservation, (reservation) => reservation.seat)
+  reservation: Reservation;
 }

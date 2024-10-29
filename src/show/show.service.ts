@@ -11,6 +11,7 @@ import { Role } from './types/categoryRole.type';
 import { Seat } from 'src/seat/entities/seat.entity';
 import _ from 'lodash';
 import { ShowSchedule } from 'src/show-schedule/entities/showSchedule.entity';
+import { string } from 'joi';
 
 @Injectable()
 export class ShowService {
@@ -32,10 +33,13 @@ export class ShowService {
     showLocation: string,
     seatInfo: any[],
   ) {
-    const existingShow = await this.findByshowTitle(showTitle);
+    const existingShow = await this.showRepository.findOne({
+      where: { showTitle },
+    });
     if (existingShow) {
       throw new ConflictException('이미 등록된 showTitle입니다.');
     }
+
     const show = await this.showRepository.save({
       userId: userId,
       showTitle,
@@ -64,7 +68,6 @@ export class ShowService {
 
     return {
       message: '공연등록 완료',
-      show,
     };
   }
 
@@ -125,9 +128,5 @@ export class ShowService {
       throw new NotFoundException('존재하지 않는 공연입니다.');
     }
     return show;
-  }
-
-  async findByshowTitle(showTitle: string) {
-    return await this.showRepository.findBy({ showTitle });
   }
 }

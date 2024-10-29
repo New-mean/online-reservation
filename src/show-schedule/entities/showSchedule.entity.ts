@@ -1,3 +1,4 @@
+import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { Show } from 'src/show/entities/show.entity';
 import {
   Column,
@@ -12,12 +13,15 @@ export class ShowSchedule {
   @PrimaryGeneratedColumn()
   showScheduleId: number;
 
-  @Column({ type: 'varchar', nullable: false })
-  showDate: string;
+  @Column({ type: 'timestamp', nullable: false })
+  showDate: Date;
 
-  @Column({ type: 'varchar', nullable: false })
-  showTime: string;
+  @Column({ type: 'timestamp', nullable: false })
+  showTime: Date;
 
   @ManyToOne(() => Show, (show) => show.showschdule)
   show: Show;
+
+  @ManyToOne(() => Reservation, (reservation) => reservation.showSchedule)
+  reservation: Reservation;
 }
