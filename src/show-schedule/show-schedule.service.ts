@@ -33,10 +33,19 @@ export class ShowScheduleService {
       showTime: fullDateTime,
     });
     await this.showScheduleRepository.save(schedule);
-
+    const schedules = await this.showScheduleRepository.find({
+      where: {
+        show: { showId: schedule.show.showId },
+      },
+      select: {
+        show: { showTitle: true, showCategory: true, showLocation: true },
+        showDate: true,
+        showTime: true,
+      },
+    });
     return {
       messgae: '스케쥴 등록 완료',
-      schedule,
+      schedules,
     };
   }
 }

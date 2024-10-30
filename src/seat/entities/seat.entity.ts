@@ -35,8 +35,8 @@ export class Seat {
   @ManyToOne(() => Show, (show) => show.seat)
   show: Show;
 
-  // @ManyToOne(() => ShowSchedule, (showSchedule) => showSchedule.seat)
-  // showSchedule: ShowSchedule;
+  @ManyToOne(() => ShowSchedule, (showSchedule) => showSchedule.seat)
+  showSchedule: ShowSchedule;
 
   @OneToMany(() => Reservation, (reservation) => reservation.seat)
   reservation: Reservation;

@@ -43,11 +43,14 @@ export class ReservationController {
       createReservationDto.totalSeat,
     );
   }
-
-  // @Get()
-  // findAll() {
-  //   return this.reservationService.findAll();
-  // }
+  @Roles(Role.User)
+  @Get('/checkReserve/:userId')
+  async getReservation(
+    @UserInfo() user: User,
+    @Param('userId') userId: number,
+  ) {
+    return this.reservationService.getReservation(userId);
+  }
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {

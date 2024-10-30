@@ -21,8 +21,8 @@ export class ShowSchedule {
   @Column({ type: 'timestamp', nullable: false })
   showTime: Date;
 
-  // @OneToMany(() => Seat, (seat) => seat.showSchedule)
-  // seat: Seat;
+  @OneToMany(() => Seat, (seat) => seat.showSchedule)
+  seat: Seat;
 
   @ManyToOne(() => Show, (show) => show.showschdule)
   show: Show;

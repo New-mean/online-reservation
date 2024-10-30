@@ -230,7 +230,6 @@ export class ReservationService {
       });
 
       const showreservaion = await queryRunner.manager.save(reservation);
-
       await queryRunner.commitTransaction();
       const showreservaions = await this.reservationRepository.find({
         where: {
@@ -257,7 +256,30 @@ export class ReservationService {
       await queryRunner.release();
     }
   }
+  async getReservation(userId: number) {
+    const reservation = await this.reservationRepository.find({
+      where: { user: { userId: userId } },
+      relations: { show: true, showSchedule: true },
+      select: {
+        show: {
+          showTitle: true,
+          showExplain: true,
+          showCategory: true,
+          showRunTime: true,
+        },
+        showSchedule: { showDate: true, showTime: true },
+      },
+      order: { createdAt: 'DESC' },
+    });
 
+    if (!reservation.length) {
+      throw new NotFoundException('예매 내역이 없습니다.');
+    }
+    return {
+      message: '예약 내역입니다.',
+      reservation,
+    };
+  }
   // findAll() {
   //   return `This action returns all reservation`;
   // }
