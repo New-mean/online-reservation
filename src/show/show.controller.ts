@@ -50,9 +50,4 @@ export class ShowController {
   async detailShow(@Param('showId') showId: number) {
     return await this.showService.detailShow(showId);
   }
-
-  @Get(':showId/reservation')
-  async findreservation(@Param('showId') showId: number) {
-    return await this.showService.findreservation(showId);
-  }
 }

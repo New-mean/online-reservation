@@ -24,25 +24,25 @@ import { ShowSchedule } from 'src/show-schedule/entities/showSchedule.entity';
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
 
-  // @Get(':showId')
-  // async findreservation(@Param('showId') showId: number) {
-  //   return await this.reservationService.findreservation(showId);
-  // }
+  @Get('/available/:showId')
+  async findreservation(@Param('showId') showId: number) {
+    return await this.reservationService.findreservation(showId);
+  }
 
-  // @Roles(Role.User)
-  // @Post(':showId')
-  // async showReservation(
-  //   @UserInfo() user: User,
-  //   @Param('showId') showId: number,
-  //   @Body() createReservationDto: CreateReservationDto,
-  // ) {
-  //   return this.reservationService.showReservation(
-  //     user.userId,
-  //     showId,
-  //     createReservationDto.grade,
-  //     createReservationDto.totalSeat,
-  //   );
-  // }
+  @Roles(Role.User)
+  @Post(':showId')
+  async showReservation(
+    @UserInfo() user: User,
+    @Param('showId') showId: number,
+    @Body() createReservationDto: CreateReservationDto,
+  ) {
+    return this.reservationService.showReservation(
+      user.userId,
+      showId,
+      createReservationDto.grade,
+      createReservationDto.totalSeat,
+    );
+  }
 
   // @Get()
   // findAll() {

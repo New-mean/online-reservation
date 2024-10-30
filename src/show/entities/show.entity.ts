@@ -62,7 +62,7 @@ export class Show {
   user: User;
 
   @OneToMany(() => Seat, (seat) => seat.show)
-  seat: Seat[];
+  seat: Seat;
 
   @OneToMany(() => ShowSchedule, (showschedule) => showschedule.show)
   showschdule: ShowSchedule[];
