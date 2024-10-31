@@ -18,6 +18,7 @@ export class ShowScheduleController {
       showId,
       createShowScheduleDto.showDate,
       createShowScheduleDto.showTime,
+      createShowScheduleDto.seatInfo,
     );
   }
 }

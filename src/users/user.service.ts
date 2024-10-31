@@ -30,4 +30,37 @@ export class UserService {
 
     return users;
   }
+  async getPoint(userId: number) {
+    const point = await this.pointRepository.find({
+      where: { user: { userId } },
+      relations: { user: true },
+      select: { point_receipt: true, reason: true, createdAt: true }, // createdAt 필드 추가
+      order: { createdAt: 'DESC' },
+    });
+
+    return {
+      message: '포인트 내역 입니다.',
+      data: point.map((point) => ({
+        point_receipt: point.point_receipt,
+        reason: point.reason,
+        createdAt: point.createdAt,
+      })),
+    };
+  }
+  // async getPoint(userId: number) {
+  //   const point = await this.pointRepository.find({
+  //     where: { user: { userId } },
+  //     relations: { user: true },
+  //     select: { point_receipt: true, reason: true },
+  //     order: { createdAt: 'DESC' },
+  //   });
+  //   return {
+  //     message: '포인트 내역 입니다.',
+  //     data: point.map((point) => ({
+  //       point_recepit: point.point_receipt,
+  //       reason: point.reason,
+  //       createdAt: point.createdAt,
+  //     })),
+  //   };
+  // }
 }

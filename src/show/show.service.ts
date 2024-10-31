@@ -20,7 +20,6 @@ export class ShowService {
     @InjectRepository(Seat) private seatRepository: Repository<Seat>,
   ) {}
 
-  // 공연 등록
   async createShow(
     userId: number,
     showTitle: string,
@@ -31,7 +30,7 @@ export class ShowService {
     showRunTime: string,
     showCategory: Role,
     showLocation: string,
-    seatInfo: any[],
+    // seatInfo: any[],
   ) {
     const existingShow = await this.showRepository.findOne({
       where: { showTitle },
@@ -50,24 +49,29 @@ export class ShowService {
       showRunTime,
       showCategory,
       showLocation,
+      // showInfo: true,
+    });
+    const shows = await this.showRepository.find({
+      select: { showTitle: true, showId: true },
     });
 
-    console.log(seatInfo);
-    const seats = seatInfo.map((seat) => {
-      const { seatNumber, seatPrice, seatGrade } = seat;
-      const seatEntity = this.seatRepository.create({
-        seatNumber,
-        seatPrice,
-        seatGrade,
-      });
-      seatEntity.show = show;
-      return seatEntity;
-    });
+    // console.log(seatInfo);
+    // const seats = seatInfo.map((seat) => {
+    //   const { seatNumber, seatPrice, seatGrade } = seat;
+    //   const seatEntity = this.seatRepository.create({
+    //     seatNumber,
+    //     seatPrice,
+    //     seatGrade,
+    //   });
+    //   seatEntity.show = show;
+    //   return seatEntity;
+    // });
 
-    await this.seatRepository.save(seats);
+    // await this.seatRepository.save(seats);
 
     return {
       message: '공연등록 완료',
+      shows,
     };
   }
 
@@ -77,6 +81,7 @@ export class ShowService {
       where: { showCategory: search },
       relations: { showschdule: true },
       select: {
+        showId: true,
         showTitle: true,
         showCast: true,
         showLocation: true,
@@ -98,7 +103,7 @@ export class ShowService {
     const show = await this.detailShowId(showId);
     const data = await this.showRepository.find({
       where: { showId: showId },
-      relations: { showschdule: true, seat: true },
+      relations: { showschdule: true },
       select: {
         showTitle: true,
         showExplain: true,
@@ -108,12 +113,6 @@ export class ShowService {
         showRunTime: true,
         showCategory: true,
         showLocation: true,
-        seat: {
-          seatId: true,
-          seatNumber: true,
-          seatPrice: true,
-          seatGrade: true,
-        },
       },
     });
     return {

@@ -37,7 +37,7 @@ export class ShowController {
       createShowDto.showRunTime,
       createShowDto.showCategory,
       createShowDto.showLocation,
-      createShowDto.seatInfo,
+      // createShowDto.seatInfo,
     );
   }
 

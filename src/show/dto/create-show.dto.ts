@@ -46,8 +46,8 @@ export class CreateShowDto {
   @IsNotEmpty({ message: '장소를 입력해주세요.' })
   showLocation: string;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => SeatInfoDto)
-  seatInfo: SeatInfoDto[];
+  // @IsArray()
+  // @ValidateNested({ each: true })
+  // @Type(() => SeatInfoDto)
+  // seatInfo: SeatInfoDto[];
 }

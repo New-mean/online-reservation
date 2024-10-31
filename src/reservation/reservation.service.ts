@@ -16,7 +16,8 @@ import { Seat } from 'src/seat/entities/seat.entity';
 import { BAD_DELIMITERS } from 'papaparse';
 import { query } from 'express';
 import { Point } from 'src/point/entities/point.entity';
-import _ from 'lodash';
+import _, { indexOf } from 'lodash';
+import { Scheduler } from 'rxjs';
 
 @Injectable()
 export class ReservationService {
@@ -25,6 +26,8 @@ export class ReservationService {
     private reservationRepository: Repository<Reservation>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Point)
+    private pointRepository: Repository<Point>,
     @InjectRepository(Show)
     private showRepository: Repository<Show>,
     @InjectRepository(Seat)
@@ -35,29 +38,25 @@ export class ReservationService {
   ) {}
 
   async findreservation(showId: number) {
-    const availableSeats = await this.seatRepository.find({
-      where: {
-        show: { showId },
-      },
+    const availableSeats = await this.showRepository.find({
+      where: { showId },
       relations: {
-        show: { showschdule: true },
+        showschdule: true,
       },
       select: {
-        seatId: true,
-        seatGrade: true,
-        seatNumber: true,
-        seatPrice: true,
-        show: {
-          showId: true,
-          showschdule: {
-            showScheduleId: true,
-            showDate: true,
-            showTime: true,
-          },
+        showTitle: true,
+        showLocation: true,
+        showschdule: {
+          showScheduleId: true,
+          showDate: true,
+          showTime: true,
+          gradeS: true,
+          gradeA: true,
+          gradeC: true,
         },
       },
       order: {
-        seatNumber: 'ASC',
+        showschdule: { showScheduleId: 'ASC' },
       },
     });
     if (availableSeats.length === 0) {
@@ -69,101 +68,9 @@ export class ReservationService {
       data: availableSeats,
     };
   }
-  // async showReservation(
-  //   userId: number,
-  //   showId: number,
-  //   grade: string,
-  //   totalSeat: number,
-  // ) {
-  //   const queryRunner = this.dataSource.createQueryRunner();
 
-  //   await queryRunner.connect();
-  //   await queryRunner.startTransaction();
-
-  //   try {
-  //     const user = await this.userRepository.findOne({
-  //       where: { userId: userId },
-  //       relations: { points: true },
-  //     });
-  //     const showSchedule = await this.showScheduleRepository.findOne({
-  //       where: { show: { showId: showId } },
-  //       relations: ['show'],
-  //     });
-  //     const seat = await this.seatRepository.findOne({
-  //       where: { seatGrade: grade, show: { showId: showId } },
-  //     });
-
-  //     if (!user || !showSchedule || !seat) {
-  //       throw new NotFoundException('예약 정보를 찾을 수 없습니다.');
-  //     }
-
-  //     const totalPoint = user.points.reduce(
-  //       (sum, pointRecord) => sum + pointRecord.point,
-  //       0,
-  //     );
-
-  //     // 포인트와 좌석 확인
-  //     if (totalPoint < seat.seatPrice * totalSeat) {
-  //       throw new BadRequestException('포인트가 부족하여 예매할 수 없습니다.');
-  //     }
-
-  //     if (seat.seatNumber < totalSeat) {
-  //       throw new BadRequestException('해당 등급 좌석이 부족합니다.');
-  //     }
-
-  //     // 포인트 차감
-  //     await queryRunner.manager.update(
-  //       Point,
-  //       { user: { userId: user.userId } },
-  //       {
-  //         point: totalPoint - seat.seatPrice * totalSeat,
-  //         reason: '예약',
-  //       },
-  //     );
-
-  //     // 좌석 수 차감
-  //     await queryRunner.manager.update(
-  //       Seat,
-  //       { seatId: seat.seatId },
-  //       { seatNumber: seat.seatNumber - totalSeat },
-  //     );
-
-  //     // 예약 생성
-  //     const reservation = this.reservationRepository.create({
-  //       user,
-  //       show: showSchedule.show,
-  //       seat,
-  //       grade,
-  //       totalSeat,
-  //       cancle: false,
-  //       createdAt: new Date(),
-  //       updatedAt: new Date(),
-  //     });
-
-  //     // 예약 저장
-  //     await queryRunner.manager.save(reservation);
-  //     await queryRunner.commitTransaction();
-
-  //     return {
-  //       message: '예매 성공',
-  //       reservation,
-  //     };
-  //   } catch (err) {
-  //     await queryRunner.rollbackTransaction();
-  //     throw new BadRequestException('예약을 생성하는 중 오류가 발생했습니다.');
-  //   } finally {
-  //     await queryRunner.release();
-  //   }
-  // }
-
-  async showReservation(
-    userId: number,
-    showId: number,
-    grade: string,
-    totalSeat: number,
-  ) {
+  async showReservation(userId: number, showId: number, showScheduleId: number, seatId: number) {
     const queryRunner = this.dataSource.createQueryRunner();
-
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
@@ -173,69 +80,92 @@ export class ReservationService {
         relations: { points: true },
       });
       const showSchedule = await this.showScheduleRepository.findOne({
-        where: { show: { showId: showId } },
-        relations: ['show'],
+        where: { showScheduleId },
+        relations: { show: true },
       });
-      const seat = await this.seatRepository.findOne({
-        where: { seatGrade: grade, show: { showId: showId } },
-      });
-      console.log(seat);
 
-      if (!user || !showSchedule || !seat) {
+      if (!user || !showSchedule) {
         throw new NotFoundException('예약 정보를 찾을 수 없습니다.');
       }
 
-      const totalPoint = user.points.reduce(
-        (sum, pointRecord) => sum + pointRecord.point,
-        0,
-      );
-      console.log(totalPoint);
+      const seat = await this.seatRepository.findOne({
+        where: { seatId: seatId },
+      });
+      if (!seat) {
+        throw new NotFoundException('좌석 Id를 찾을수 없습니다.');
+      }
+      const totalPrice = seat.seatPrice;
 
-      if (totalPoint < seat.seatPrice * totalSeat) {
+      const ownPoint = user.points.reduce((sum, pointRecord) => sum + pointRecord.point, 0);
+      if (ownPoint < totalPrice) {
         throw new BadRequestException('포인트가 부족하여 예매할 수 없습니다.');
       }
+      const reserved = await this.reservationRepository.findOne({
+        where: { seat: { seatId }, is_Reserved: true },
+      });
+      if (reserved) {
+        throw new BadRequestException('해당 좌석이 이미 예매 되었습니다.');
+      }
+      await queryRunner.manager.save(Point, {
+        user: { userId: user.userId },
+        point: ownPoint - totalPrice, // 남은 포인트
+        point_receipt: totalPrice, // 사용된 포인트 (예매에 사용됨)
+        reason: '예매',
+        createdAt: new Date(),
+      });
+      // await queryRunner.manager.update(
+      //   Point,
+      //   { user: { userId: user.userId } },
+      //   {
+      //     point: ownPoint - totalPrice,
+      //     point_receipt: totalPrice,
+      //     reason: '예매',
+      //   },
+      // );
 
-      if (seat.seatNumber < totalSeat) {
-        throw new BadRequestException('해당 등급 좌석이 부족합니다.');
+      await queryRunner.manager.update(
+        // 좌석 상태 업데이트
+        Seat,
+        { seatId: seatId },
+        { seatNumber: 0 },
+      );
+      const gradeCounts = { S: 0, A: 0, C: 0 };
+      if (seat.seatGrade === 'S') {
+        gradeCounts.S -= 1;
+      } else if (seat.seatGrade === 'A') {
+        gradeCounts.A -= 1;
+      } else if (seat.seatGrade === 'C') {
+        gradeCounts.C -= 1;
       }
 
-      // 포인트 차감
       await queryRunner.manager.update(
-        Point,
-        { user: { userId: user.userId } },
+        ShowSchedule,
+        { showScheduleId },
         {
-          point: totalPoint - seat.seatPrice * totalSeat,
-          reason: '예약',
+          // 남은 좌석 수를 현재 수에서 감소시키도록 설정합니다.
+          gradeS: () => `gradeS + ${gradeCounts.S}`,
+          gradeA: () => `gradeA + ${gradeCounts.A}`,
+          gradeC: () => `gradeC + ${gradeCounts.C}`,
         },
       );
 
-      // 좌석 수 차감
-      await queryRunner.manager.update(
-        Seat,
-        { seatId: seat.seatId },
-        { seatNumber: seat.seatNumber - totalSeat },
-      );
-
-      // 예약 생성
       const reservation = this.reservationRepository.create({
         user,
         show: showSchedule.show,
         showSchedule,
         seat,
-        grade,
-        totalSeat,
+        is_Reserved: true,
         cancle: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
-
-      const showreservaion = await queryRunner.manager.save(reservation);
+      await queryRunner.manager.save(reservation);
       await queryRunner.commitTransaction();
       const showreservaions = await this.reservationRepository.find({
         where: {
-          show: { showId: showreservaion.show.showId },
+          show: { showId: reservation.show.showId },
           showSchedule: {
-            showScheduleId: showreservaion.showSchedule.showScheduleId,
+            showScheduleId: reservation.showSchedule.showScheduleId,
           },
         },
         select: {
@@ -259,7 +189,7 @@ export class ReservationService {
   async getReservation(userId: number) {
     const reservation = await this.reservationRepository.find({
       where: { user: { userId: userId } },
-      relations: { show: true, showSchedule: true },
+      relations: { show: true, showSchedule: true, seat: true },
       select: {
         show: {
           showTitle: true,
@@ -268,6 +198,7 @@ export class ReservationService {
           showRunTime: true,
         },
         showSchedule: { showDate: true, showTime: true },
+        seat: { seatId: true, seatGrade: true },
       },
       order: { createdAt: 'DESC' },
     });
@@ -280,19 +211,77 @@ export class ReservationService {
       reservation,
     };
   }
-  // findAll() {
-  //   return `This action returns all reservation`;
-  // }
+  async cancleReservation(userId: number, reservationId: number) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const reservation = await this.reservationRepository.findOne({
+        where: { reservationId: reservationId },
+        relations: { user: true, showSchedule: true, seat: true },
+      });
+      if (!reservation || reservation.user.userId !== userId) {
+        throw new NotFoundException('예약을 찾을수 없습니다.');
+      }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} reservation`;
-  // }
+      const time = new Date(reservation.showSchedule.showDate).getTime() - new Date().getTime();
 
-  // update(id: number, updateReservationDto: UpdateReservationDto) {
-  //   return `This action updates a #${id} reservation`;
-  // }
+      if (time < 3 * 60 * 60 * 1000) {
+        throw new BadRequestException('공연 시작 3시간 전까지만 취소 가능합니다.');
+      }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} reservation`;
-  // }
+      const refundPoint = reservation.seat.seatPrice;
+      console.log('refundPoint', refundPoint);
+      // const userPoint = await this.pointRepository.findOne({
+      //   where: { user: { userId: userId } },
+      //   order: { createdAt: 'DESC' },
+      // });
+      await queryRunner.manager.save(Point, {
+        user: { userId: userId },
+        point: refundPoint,
+        point_recepit: refundPoint,
+        reason: '환불',
+        createdAt: new Date(),
+      });
+      await queryRunner.manager.update(
+        Reservation,
+        { reservationId },
+        { cancle: true, updatedAt: new Date() },
+      );
+      await queryRunner.manager.update(
+        Seat,
+        { seatId: reservation.seat.seatId },
+        { seatNumber: reservation.seat.seatNumber + 1 },
+      );
+      const gradeCounts = { gradeS: 0, gradeA: 0, gradeC: 0 };
+      if (reservation.seat.seatGrade === 'S') {
+        gradeCounts.gradeS += 1;
+      } else if (reservation.seat.seatGrade === 'A') {
+        gradeCounts.gradeA += 1;
+      } else if (reservation.seat.seatGrade === 'C') {
+        gradeCounts.gradeC += 1;
+      }
+
+      await queryRunner.manager.update(
+        ShowSchedule,
+        { showScheduleId: reservation.showSchedule.showScheduleId },
+        {
+          gradeS: () => `gradeS + ${gradeCounts.gradeS}`,
+          gradeA: () => `gradeA + ${gradeCounts.gradeA}`,
+          gradeC: () => `gradeC + ${gradeCounts.gradeC}`,
+        },
+      );
+
+      await queryRunner.commitTransaction();
+      return {
+        message: '예매 취소되었습니다.',
+        data: { reservation },
+      };
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new BadRequestException('예매 취소 중 오류 발생했습니다.');
+    } finally {
+      await queryRunner.release();
+    }
+  }
 }

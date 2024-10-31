@@ -59,7 +59,10 @@ export class AuthService {
 
     await this.pointRepository.save({
       user: users,
+      point: 1000000,
+      point_receipt: 0,
       reason: '신규 가입 고객 포인트 증정',
+      createdAt: new Date(),
     });
 
     return await this.userRepository.findOne({
@@ -79,9 +82,7 @@ export class AuthService {
     });
 
     if (_.isNil(user)) {
-      throw new UnauthorizedException(
-        '이메일 또는 비밀번호가 일치하는 인증 정보가 없습니다.',
-      );
+      throw new UnauthorizedException('이메일 또는 비밀번호가 일치하는 인증 정보가 없습니다.');
     }
 
     if (!password) {
@@ -89,9 +90,7 @@ export class AuthService {
     }
 
     if (!(await compare(password, user.password))) {
-      throw new UnauthorizedException(
-        '이메일 또는 비밀번호가 일치하는 정보가 없습니다.',
-      );
+      throw new UnauthorizedException('이메일 또는 비밀번호가 일치하는 정보가 없습니다.');
     }
 
     const payload = { email, sub: user.userId };

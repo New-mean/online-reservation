@@ -11,11 +11,11 @@ export class Reservation {
   @PrimaryGeneratedColumn()
   reservationId: number;
 
-  @Column({ type: 'varchar', nullable: false })
-  grade: string;
+  // @Column({ type: 'varchar', nullable: false })
+  // grade: string;
 
-  @Column({ type: 'int', nullable: false })
-  totalSeat: number;
+  // @Column({ type: 'int', nullable: false })
+  // totalSeat: number;
 
   @Column({ type: 'boolean', nullable: false })
   cancle: boolean;
@@ -25,6 +25,9 @@ export class Reservation {
 
   @Column({ type: 'timestamp', nullable: false })
   updatedAt: Date;
+
+  @Column({ type: 'boolean', nullable: false, default: false })
+  is_Reserved: boolean;
 
   @ManyToOne(() => User, (user) => user.reservation)
   user: User;

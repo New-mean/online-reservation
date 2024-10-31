@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
@@ -39,23 +30,20 @@ export class ReservationController {
     return this.reservationService.showReservation(
       user.userId,
       showId,
-      createReservationDto.grade,
-      createReservationDto.totalSeat,
+      createReservationDto.showScheduleId,
+      createReservationDto.seatId,
     );
   }
   @Roles(Role.User)
   @Get('/checkReserve/:userId')
-  async getReservation(
-    @UserInfo() user: User,
-    @Param('userId') userId: number,
-  ) {
+  async getReservation(@UserInfo() user: User, @Param('userId') userId: number) {
     return this.reservationService.getReservation(userId);
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.reservationService.findOne(+id);
-  // }
+  @Delete('/cancle/:reservationId')
+  async cancleReservation(@UserInfo() user: User, @Param('reservationId') reservationId: number) {
+    return this.reservationService.cancleReservation(user.userId, reservationId);
+  }
 
   // @Patch(':id')
   // update(
