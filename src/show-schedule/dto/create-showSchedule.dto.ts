@@ -1,16 +1,6 @@
 import { Type } from 'class-transformer';
-import {
-  IsArray,
-  IsDate,
-  IsDateString,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { IsArray, IsDateString, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { SeatInfoDto } from 'src/seat/dto/create-seat.dto';
-import { CreateShowDto } from 'src/show/dto/create-show.dto';
-import { Timestamp } from 'typeorm';
 
 export class CreateShowScheduleDto {
   @IsDateString()

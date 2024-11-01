@@ -7,7 +7,6 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   OneToMany,
-  JoinColumn,
 } from 'typeorm';
 
 import { Role } from '../types/userRole.type';

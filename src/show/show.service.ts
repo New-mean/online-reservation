@@ -10,8 +10,6 @@ import { Repository } from 'typeorm';
 import { Role } from './types/categoryRole.type';
 import { Seat } from 'src/seat/entities/seat.entity';
 import _ from 'lodash';
-import { ShowSchedule } from 'src/show-schedule/entities/showSchedule.entity';
-import { string } from 'joi';
 
 @Injectable()
 export class ShowService {
@@ -30,7 +28,6 @@ export class ShowService {
     showRunTime: string,
     showCategory: Role,
     showLocation: string,
-    // seatInfo: any[],
   ) {
     const existingShow = await this.showRepository.findOne({
       where: { showTitle },
@@ -49,25 +46,10 @@ export class ShowService {
       showRunTime,
       showCategory,
       showLocation,
-      // showInfo: true,
     });
     const shows = await this.showRepository.find({
       select: { showTitle: true, showId: true },
     });
-
-    // console.log(seatInfo);
-    // const seats = seatInfo.map((seat) => {
-    //   const { seatNumber, seatPrice, seatGrade } = seat;
-    //   const seatEntity = this.seatRepository.create({
-    //     seatNumber,
-    //     seatPrice,
-    //     seatGrade,
-    //   });
-    //   seatEntity.show = show;
-    //   return seatEntity;
-    // });
-
-    // await this.seatRepository.save(seats);
 
     return {
       message: '공연등록 완료',
@@ -75,7 +57,6 @@ export class ShowService {
     };
   }
 
-  // 공연 목록 조회
   async findShow(search: Role) {
     const show = await this.showRepository.find({
       where: { showCategory: search },
@@ -98,7 +79,6 @@ export class ShowService {
     };
   }
 
-  // 공연 상세 조회
   async detailShow(showId: number) {
     const show = await this.detailShowId(showId);
     const data = await this.showRepository.find({

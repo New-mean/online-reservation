@@ -5,8 +5,6 @@ import _ from 'lodash';
 import { User } from './entities/user.entity';
 import { Point } from 'src/point/entities/point.entity';
 import { Repository } from 'typeorm';
-import { JwtService } from '@nestjs/jwt';
-import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class UserService {

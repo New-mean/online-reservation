@@ -1,7 +1,7 @@
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { Seat } from 'src/seat/entities/seat.entity';
 import { Show } from 'src/show/entities/show.entity';
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Timestamp } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'showSchedules' })
 export class ShowSchedule {

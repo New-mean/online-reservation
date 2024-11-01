@@ -1,17 +1,6 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Query } from '@nestjs/common';
 import { ShowService } from './show.service';
 import { CreateShowDto } from './dto/create-show.dto';
-import { UpdateShowDto } from './dto/update-show.dto';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role as userRole } from 'src/users/types/userRole.type';
 import { Role as categoryRole } from '../show/types/categoryRole.type';
@@ -37,7 +26,6 @@ export class ShowController {
       createShowDto.showRunTime,
       createShowDto.showCategory,
       createShowDto.showLocation,
-      // createShowDto.seatInfo,
     );
   }
 

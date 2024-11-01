@@ -1,14 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
-import { UpdateReservationDto } from './dto/update-reservation.dto';
-import { Show } from 'src/show/entities/show.entity';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/users/types/userRole.type';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { User } from 'src/users/entities/user.entity';
 import { UserInfo } from 'src/utils/userInfo.decorator';
-import { ShowSchedule } from 'src/show-schedule/entities/showSchedule.entity';
 
 @UseGuards(RolesGuard)
 @Controller('reservation')
@@ -44,17 +41,4 @@ export class ReservationController {
   async cancleReservation(@UserInfo() user: User, @Param('reservationId') reservationId: number) {
     return this.reservationService.cancleReservation(user.userId, reservationId);
   }
-
-  // @Patch(':id')
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() updateReservationDto: UpdateReservationDto,
-  // ) {
-  //   return this.reservationService.update(+id, updateReservationDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.reservationService.remove(+id);
-  // }
 }
