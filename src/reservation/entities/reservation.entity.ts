@@ -11,12 +11,6 @@ export class Reservation {
   @PrimaryGeneratedColumn()
   reservationId: number;
 
-  // @Column({ type: 'varchar', nullable: false })
-  // grade: string;
-
-  // @Column({ type: 'int', nullable: false })
-  // totalSeat: number;
-
   @Column({ type: 'boolean', nullable: false })
   cancle: boolean;
 

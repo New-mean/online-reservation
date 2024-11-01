@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,11 +8,8 @@ import { User } from 'src/users/entities/user.entity';
 import { ShowSchedule } from 'src/show-schedule/entities/showSchedule.entity';
 import { Show } from 'src/show/entities/show.entity';
 import { Seat } from 'src/seat/entities/seat.entity';
-import { BAD_DELIMITERS } from 'papaparse';
-import { query } from 'express';
 import { Point } from 'src/point/entities/point.entity';
 import _, { indexOf } from 'lodash';
-import { Scheduler } from 'rxjs';
 
 @Injectable()
 export class ReservationService {
@@ -108,27 +100,13 @@ export class ReservationService {
       }
       await queryRunner.manager.save(Point, {
         user: { userId: user.userId },
-        point: ownPoint - totalPrice, // 남은 포인트
-        point_receipt: totalPrice, // 사용된 포인트 (예매에 사용됨)
+        point: ownPoint - totalPrice,
+        point_receipt: totalPrice,
         reason: '예매',
         createdAt: new Date(),
       });
-      // await queryRunner.manager.update(
-      //   Point,
-      //   { user: { userId: user.userId } },
-      //   {
-      //     point: ownPoint - totalPrice,
-      //     point_receipt: totalPrice,
-      //     reason: '예매',
-      //   },
-      // );
 
-      await queryRunner.manager.update(
-        // 좌석 상태 업데이트
-        Seat,
-        { seatId: seatId },
-        { seatNumber: 0 },
-      );
+      await queryRunner.manager.update(Seat, { seatId: seatId }, { seatNumber: 0 });
       const gradeCounts = { S: 0, A: 0, C: 0 };
       if (seat.seatGrade === 'S') {
         gradeCounts.S -= 1;
@@ -142,7 +120,6 @@ export class ReservationService {
         ShowSchedule,
         { showScheduleId },
         {
-          // 남은 좌석 수를 현재 수에서 감소시키도록 설정합니다.
           gradeS: () => `gradeS + ${gradeCounts.S}`,
           gradeA: () => `gradeA + ${gradeCounts.A}`,
           gradeC: () => `gradeC + ${gradeCounts.C}`,
@@ -231,15 +208,17 @@ export class ReservationService {
       }
 
       const refundPoint = reservation.seat.seatPrice;
-      console.log('refundPoint', refundPoint);
-      // const userPoint = await this.pointRepository.findOne({
-      //   where: { user: { userId: userId } },
-      //   order: { createdAt: 'DESC' },
-      // });
+      const userPoints = await this.pointRepository.findOne({
+        where: { user: { userId } },
+        order: { createdAt: 'DESC' },
+      });
+      const currentTotalPoints = userPoints ? userPoints.point : 0;
+      const updatedTotalPoints = currentTotalPoints + refundPoint;
+
       await queryRunner.manager.save(Point, {
         user: { userId: userId },
-        point: refundPoint,
-        point_recepit: refundPoint,
+        point: updatedTotalPoints,
+        point_receipt: refundPoint,
         reason: '환불',
         createdAt: new Date(),
       });
