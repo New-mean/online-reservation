@@ -13,6 +13,7 @@ import {
 import { Role } from '../types/categoryRole.type';
 import { Seat } from 'src/seat/entities/seat.entity';
 import { ShowSchedule } from '../../show-schedule/entities/showSchedule.entity';
+import { Reservation } from 'src/reservation/entities/reservation.entity';
 
 @Entity({ name: 'shows' })
 export class Show {
@@ -48,8 +49,8 @@ export class Show {
   @Column({ type: 'varchar', nullable: false, name: 'showLocation' })
   showLocation: string;
 
-  @Column({ type: 'json', nullable: true })
-  seatInfo: { seatNumber: number; seatGrade: string; seatPrice: number };
+  // @Column({ type: 'json', nullable: true })
+  // seatInfo: { seatNumber: number; seatGrade: string; seatPrice: number };
 
   @CreateDateColumn({ name: 'createdAt', comment: '생성일시' })
   createdAt: Date;
@@ -61,8 +62,11 @@ export class Show {
   user: User;
 
   @OneToMany(() => Seat, (seat) => seat.show)
-  seat: Seat[];
+  seat: Seat;
 
   @OneToMany(() => ShowSchedule, (showschedule) => showschedule.show)
   showschdule: ShowSchedule[];
+
+  @OneToMany(() => Reservation, (reservation) => reservation.show)
+  reservation: Reservation[];
 }

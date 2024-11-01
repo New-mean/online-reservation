@@ -14,6 +14,8 @@ import { Show } from './show/entities/show.entity';
 import { Seat } from './seat/entities/seat.entity';
 import { ShowScheduleModule } from './show-schedule/show-schedule.module';
 import { ShowSchedule } from './show-schedule/entities/showSchedule.entity';
+import { ReservationModule } from './reservation/reservation.module';
+import { Reservation } from './reservation/entities/reservation.entity';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -26,7 +28,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [User, Point, Show, Seat, ShowSchedule],
+    entities: [User, Point, Show, Seat, ShowSchedule, Reservation],
     synchronize: configService.get('DB_SYNC'),
     logging: true,
   }),
@@ -52,6 +54,7 @@ const typeOrmModuleOptions = {
     ShowModule,
     UsersModule,
     ShowScheduleModule,
+    ReservationModule,
   ],
   controllers: [],
   providers: [],

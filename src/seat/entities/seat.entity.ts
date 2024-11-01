@@ -1,12 +1,7 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Show } from '../../show/entities/show.entity';
+import { Reservation } from 'src/reservation/entities/reservation.entity';
+import { ShowSchedule } from 'src/show-schedule/entities/showSchedule.entity';
 
 @Entity({
   name: 'seats',
@@ -32,4 +27,10 @@ export class Seat {
 
   @ManyToOne(() => Show, (show) => show.seat)
   show: Show;
+
+  @ManyToOne(() => ShowSchedule, (showSchedule) => showSchedule.seat)
+  showSchedule: ShowSchedule;
+
+  @OneToMany(() => Reservation, (reservation) => reservation.seat)
+  reservation: Reservation;
 }

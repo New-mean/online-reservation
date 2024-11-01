@@ -10,7 +10,6 @@ import { Repository } from 'typeorm';
 import { Role } from './types/categoryRole.type';
 import { Seat } from 'src/seat/entities/seat.entity';
 import _ from 'lodash';
-import { ShowSchedule } from 'src/show-schedule/entities/showSchedule.entity';
 
 @Injectable()
 export class ShowService {
@@ -19,7 +18,6 @@ export class ShowService {
     @InjectRepository(Seat) private seatRepository: Repository<Seat>,
   ) {}
 
-  // 공연 등록
   async createShow(
     userId: number,
     showTitle: string,
@@ -30,12 +28,14 @@ export class ShowService {
     showRunTime: string,
     showCategory: Role,
     showLocation: string,
-    seatInfo: any[],
   ) {
-    const existingShow = await this.findByshowTitle(showTitle);
+    const existingShow = await this.showRepository.findOne({
+      where: { showTitle },
+    });
     if (existingShow) {
       throw new ConflictException('이미 등록된 showTitle입니다.');
     }
+
     const show = await this.showRepository.save({
       userId: userId,
       showTitle,
@@ -47,33 +47,22 @@ export class ShowService {
       showCategory,
       showLocation,
     });
-
-    console.log(seatInfo);
-    const seats = seatInfo.map((seat) => {
-      const { seatNumber, seatPrice, seatGrade } = seat;
-      const seatEntity = this.seatRepository.create({
-        seatNumber,
-        seatPrice,
-        seatGrade,
-      });
-      seatEntity.show = show;
-      return seatEntity;
+    const shows = await this.showRepository.find({
+      select: { showTitle: true, showId: true },
     });
-
-    await this.seatRepository.save(seats);
 
     return {
       message: '공연등록 완료',
-      show,
+      shows,
     };
   }
 
-  // 공연 목록 조회
   async findShow(search: Role) {
     const show = await this.showRepository.find({
       where: { showCategory: search },
       relations: { showschdule: true },
       select: {
+        showId: true,
         showTitle: true,
         showCast: true,
         showLocation: true,
@@ -90,12 +79,11 @@ export class ShowService {
     };
   }
 
-  // 공연 상세 조회
   async detailShow(showId: number) {
     const show = await this.detailShowId(showId);
     const data = await this.showRepository.find({
       where: { showId: showId },
-      relations: { showschdule: true, seat: true },
+      relations: { showschdule: true },
       select: {
         showTitle: true,
         showExplain: true,
@@ -105,17 +93,45 @@ export class ShowService {
         showRunTime: true,
         showCategory: true,
         showLocation: true,
-        seat: {
-          seatId: true,
-          seatNumber: true,
-          seatPrice: true,
-          seatGrade: true,
-        },
       },
     });
     return {
       message: '공연 상세 조회 되었습니다.',
       data,
+    };
+  }
+
+  async findreservation(showId: number) {
+    const availableSeats = await this.seatRepository.find({
+      where: { show: { showId } },
+      relations: {
+        show: { showschdule: true },
+      },
+      select: {
+        seatId: true,
+        seatGrade: true,
+        seatNumber: true,
+        seatPrice: true,
+        show: {
+          showId: true,
+          showschdule: {
+            showScheduleId: true,
+            showDate: true,
+            showTime: true,
+          },
+        },
+      },
+      order: {
+        seatNumber: 'DESC',
+      },
+    });
+    if (availableSeats.length === 0) {
+      throw new BadRequestException('예매 가능한 좌석이 없습니다.');
+    }
+
+    return {
+      message: '예매 가능한 좌석 조회 완료',
+      data: availableSeats,
     };
   }
 
@@ -125,9 +141,5 @@ export class ShowService {
       throw new NotFoundException('존재하지 않는 공연입니다.');
     }
     return show;
-  }
-
-  async findByshowTitle(showTitle: string) {
-    return await this.showRepository.findBy({ showTitle });
   }
 }

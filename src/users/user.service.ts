@@ -5,8 +5,6 @@ import _ from 'lodash';
 import { User } from './entities/user.entity';
 import { Point } from 'src/point/entities/point.entity';
 import { Repository } from 'typeorm';
-import { JwtService } from '@nestjs/jwt';
-import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class UserService {
@@ -29,5 +27,22 @@ export class UserService {
     }
 
     return users;
+  }
+
+  async getPoint(userId: number) {
+    const point = await this.pointRepository.find({
+      where: { user: { userId } },
+      relations: { user: true },
+      select: { point_receipt: true, reason: true },
+      order: { createdAt: 'DESC' },
+    });
+    return {
+      message: '포인트 내역 입니다.',
+      data: point.map((point) => ({
+        point_recepit: point.point_receipt,
+        reason: point.reason,
+        createdAt: point.createdAt,
+      })),
+    };
   }
 }
