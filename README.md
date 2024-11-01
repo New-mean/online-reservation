@@ -7,7 +7,6 @@
 - ** Nest.js** : TypeScript 실행환경
 - ** Node.js** :TypeScript 웹 애플리케이션 프레임워크
 - ** MySQL**: 관계형 데이터베이스(TypeORM 사용)
-- **
 
 ## ERD
 <img width="1764" alt="image" src="https://github.com/user-attachments/assets/6161952a-42dd-47c0-b24b-feccd87b4f0a">
